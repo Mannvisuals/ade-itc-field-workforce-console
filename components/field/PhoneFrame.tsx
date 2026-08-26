@@ -1,7 +1,15 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Home, Activity as ActivityIcon, CalendarCheck, Wallet } from "lucide-react";
+import {
+  Home,
+  Activity as ActivityIcon,
+  CalendarCheck,
+  Wallet,
+  Signal,
+  Wifi,
+  BatteryFull,
+} from "lucide-react";
 import { phoneTabs, type PhoneTab } from "@/content/data";
 
 const TAB_ICONS: Record<PhoneTab["key"], typeof Home> = {
@@ -26,7 +34,11 @@ export function PhoneFrame({
         {/* Status bar */}
         <div className="flex items-center justify-between bg-deep px-5 py-2 font-mono text-[11px] text-white">
           <span>09:41</span>
-          <span className="tracking-wider text-white/70">•••• ▲ ▮▮▮</span>
+          <span className="flex items-center gap-1.5 text-white/70">
+            <Signal size={12} />
+            <Wifi size={12} />
+            <BatteryFull size={14} />
+          </span>
         </div>
 
         {/* Tab content */}
