@@ -1,0 +1,291 @@
+// All mock data for the Field Workforce Console demo.
+// Nothing in the components should hardcode a number, name or status: it all lives here.
+// This is a static demonstration build. Nothing here is live data.
+
+// ---------------------------------------------------------------------------
+// Programme
+// ---------------------------------------------------------------------------
+
+export const programme = {
+  name: "Disha Field Programme",
+  staffCount: 55,
+  districtCount: 6,
+  monthLabel: "March 2026",
+  dateLabel: "Today, 12 March 2026",
+};
+
+// ---------------------------------------------------------------------------
+// A1. Live deployment map
+// ---------------------------------------------------------------------------
+
+export type PinStatus =
+  | "in_boundary"
+  | "outside_boundary"
+  | "not_checked_in"
+  | "no_signal";
+
+export interface FieldPin {
+  id: string;
+  name: string;
+  village: string;
+  district: string;
+  x: number;
+  y: number;
+  status: PinStatus;
+  checkInTime: string | null;
+  lastActivity: string;
+}
+
+export interface DistrictLabel {
+  name: string;
+  labelX: number;
+  labelY: number;
+}
+
+// Label anchors for the six district clusters on the abstract SVG map.
+export const districtLabels: DistrictLabel[] = [
+  { name: "Bhopal", labelX: 205, labelY: 108 },
+  { name: "Sagar", labelX: 540, labelY: 60 },
+  { name: "Vidisha", labelX: 355, labelY: 320 },
+  { name: "Damoh", labelX: 640, labelY: 172 },
+  { name: "Betul", labelX: 170, labelY: 420 },
+  { name: "Chhatarpur", labelX: 600, labelY: 445 },
+];
+
+export const mapCounts = {
+  inBoundary: 47,
+  outsideBoundary: 4,
+  notCheckedIn: 3,
+  noSignal: 1,
+};
+
+export const fieldPins: FieldPin[] = [
+  { id: "FE-MP-0103", name: "Naveen Rajput", village: "Bamhori", district: "Bhopal", x: 207, y: 143, status: "in_boundary", checkInTime: "09:34", lastActivity: "Enrolment logged 12:27" },
+  { id: "FE-MP-0106", name: "Rakesh Dubey", village: "Sehatganj", district: "Bhopal", x: 224, y: 141, status: "in_boundary", checkInTime: "08:01", lastActivity: "Household visit logged 10:22" },
+  { id: "FE-MP-0109", name: "Sarita Yadav", village: "Kolar Kalan", district: "Bhopal", x: 235, y: 174, status: "in_boundary", checkInTime: "09:34", lastActivity: "Household visit logged 10:28" },
+  { id: "FE-MP-0112", name: "Rakesh Lodhi", village: "Bagsevania", district: "Bhopal", x: 210, y: 145, status: "in_boundary", checkInTime: "09:53", lastActivity: "Household visit logged 10:17" },
+  { id: "FE-MP-0115", name: "Sandeep Sharma", village: "Neelbad", district: "Bhopal", x: 264, y: 165, status: "in_boundary", checkInTime: "09:29", lastActivity: "Follow-up logged 12:54" },
+  { id: "FE-MP-0118", name: "Ashok Thakur", village: "Ratanpur", district: "Bhopal", x: 220, y: 142, status: "in_boundary", checkInTime: "09:56", lastActivity: "Follow-up logged 12:06" },
+  { id: "FE-MP-0121", name: "Mahesh Mishra", village: "Chandanpura", district: "Bhopal", x: 207, y: 173, status: "in_boundary", checkInTime: "09:46", lastActivity: "Group session logged 11:20" },
+  { id: "FE-MP-0124", name: "Pooja Mishra", village: "Islampur", district: "Bhopal", x: 273, y: 179, status: "in_boundary", checkInTime: "09:03", lastActivity: "Group session logged 11:12" },
+  { id: "FE-MP-0127", name: "Deepak Verma", village: "Barkheda", district: "Bhopal", x: 203, y: 158, status: "not_checked_in", checkInTime: null, lastActivity: "No activity logged" },
+  { id: "FE-MP-0130", name: "Meena Kori", village: "Gunga", district: "Bhopal", x: 237, y: 119, status: "in_boundary", checkInTime: "08:48", lastActivity: "Household visit logged 10:51" },
+
+  { id: "FE-MP-0133", name: "Vikram Patel", village: "Rehli", district: "Sagar", x: 558, y: 140, status: "in_boundary", checkInTime: "08:17", lastActivity: "Follow-up logged 11:24" },
+  { id: "FE-MP-0136", name: "Manju Jatav", village: "Banda", district: "Sagar", x: 556, y: 83, status: "in_boundary", checkInTime: "08:41", lastActivity: "Group session logged 11:17" },
+  { id: "FE-MP-0139", name: "Sanjay Verma", village: "Khurai", district: "Sagar", x: 564, y: 147, status: "in_boundary", checkInTime: "08:26", lastActivity: "Group session logged 10:49" },
+  { id: "FE-MP-0142", name: "Meena Kori", village: "Deori", district: "Sagar", x: 519, y: 152, status: "outside_boundary", checkInTime: "09:10", lastActivity: "Group session logged 12:11" },
+  { id: "FE-MP-0145", name: "Arun Prajapati", village: "Malthone", district: "Sagar", x: 596, y: 137, status: "in_boundary", checkInTime: "08:53", lastActivity: "Enrolment logged 10:37" },
+  { id: "FE-MP-0148", name: "Dinesh Dubey", village: "Shahgarh", district: "Sagar", x: 557, y: 99, status: "in_boundary", checkInTime: "08:56", lastActivity: "Household visit logged 09:20" },
+  { id: "FE-MP-0151", name: "Mahesh Lodhi", village: "Kesli", district: "Sagar", x: 541, y: 139, status: "in_boundary", checkInTime: "09:29", lastActivity: "Enrolment logged 10:04" },
+  { id: "FE-MP-0154", name: "Harish Ahirwar", village: "Gaurjhamar", district: "Sagar", x: 530, y: 134, status: "in_boundary", checkInTime: "09:46", lastActivity: "Enrolment logged 12:16" },
+  { id: "FE-MP-0157", name: "Ramesh Patel", village: "Rahatgarh", district: "Sagar", x: 509, y: 140, status: "in_boundary", checkInTime: "08:00", lastActivity: "Enrolment logged 09:03" },
+  { id: "FE-MP-0160", name: "Ajay Vishwakarma", village: "Surkhi", district: "Sagar", x: 517, y: 107, status: "in_boundary", checkInTime: "08:54", lastActivity: "Enrolment logged 09:43" },
+
+  { id: "FE-MP-0163", name: "Kavita Lodhi", village: "Basoda", district: "Vidisha", x: 384, y: 282, status: "in_boundary", checkInTime: "08:58", lastActivity: "Household visit logged 09:55" },
+  { id: "FE-MP-0166", name: "Dinesh Mishra", village: "Kurwai", district: "Vidisha", x: 327, y: 255, status: "outside_boundary", checkInTime: "08:16", lastActivity: "Group session logged 09:40" },
+  { id: "FE-MP-0169", name: "Meena Yadav", village: "Lateri", district: "Vidisha", x: 421, y: 263, status: "in_boundary", checkInTime: "09:06", lastActivity: "Follow-up logged 12:48" },
+  { id: "FE-MP-0172", name: "Mahesh Tiwari", village: "Sironj", district: "Vidisha", x: 343, y: 254, status: "in_boundary", checkInTime: "09:09", lastActivity: "Household visit logged 10:13" },
+  { id: "FE-MP-0175", name: "Sunil Sharma", village: "Gyaraspur", district: "Vidisha", x: 394, y: 212, status: "in_boundary", checkInTime: "08:25", lastActivity: "Group session logged 11:49" },
+  { id: "FE-MP-0178", name: "Renu Lodhi", village: "Nateran", district: "Vidisha", x: 360, y: 290, status: "not_checked_in", checkInTime: null, lastActivity: "No check-in for 2 days" },
+  { id: "FE-MP-0181", name: "Pradeep Sahu", village: "Pathari", district: "Vidisha", x: 373, y: 234, status: "in_boundary", checkInTime: "09:00", lastActivity: "Enrolment logged 12:51" },
+  { id: "FE-MP-0184", name: "Rajesh Gond", village: "Tyonda", district: "Vidisha", x: 415, y: 247, status: "in_boundary", checkInTime: "09:06", lastActivity: "Group session logged 12:11" },
+  { id: "FE-MP-0187", name: "Rekha Dubey", village: "Ganjbasoda", district: "Vidisha", x: 441, y: 242, status: "in_boundary", checkInTime: "09:27", lastActivity: "Enrolment logged 10:56" },
+
+  { id: "FE-MP-0190", name: "Anita Thakur", village: "Hatta", district: "Damoh", x: 582, y: 218, status: "in_boundary", checkInTime: "09:10", lastActivity: "Enrolment logged 11:28" },
+  { id: "FE-MP-0193", name: "Pooja Jatav", village: "Patera", district: "Damoh", x: 597, y: 190, status: "in_boundary", checkInTime: "09:01", lastActivity: "Household visit logged 12:26" },
+  { id: "FE-MP-0196", name: "Anita Ahirwar", village: "Jabera", district: "Damoh", x: 608, y: 205, status: "in_boundary", checkInTime: "08:57", lastActivity: "Follow-up logged 10:19" },
+  { id: "FE-MP-0199", name: "Pradeep Patel", village: "Tendukheda", district: "Damoh", x: 626, y: 196, status: "in_boundary", checkInTime: "08:19", lastActivity: "Follow-up logged 10:44" },
+  { id: "FE-MP-0202", name: "Vinod Sahu", village: "Batiyagarh", district: "Damoh", x: 593, y: 210, status: "in_boundary", checkInTime: "09:48", lastActivity: "Group session logged 11:13" },
+  { id: "FE-MP-0205", name: "Naveen Rajput", village: "Padariya", district: "Damoh", x: 601, y: 265, status: "in_boundary", checkInTime: "09:53", lastActivity: "Household visit logged 10:49" },
+  { id: "FE-MP-0208", name: "Harish Mishra", village: "Nohta", district: "Damoh", x: 633, y: 230, status: "no_signal", checkInTime: "08:08", lastActivity: "Last location 09:40, no signal for 4h 20m" },
+  { id: "FE-MP-0211", name: "Arun Rajput", village: "Barodiya Kalan", district: "Damoh", x: 631, y: 214, status: "in_boundary", checkInTime: "08:29", lastActivity: "Household visit logged 10:08" },
+  { id: "FE-MP-0214", name: "Vijay Kushwaha", village: "Singhpur", district: "Damoh", x: 598, y: 217, status: "in_boundary", checkInTime: "08:15", lastActivity: "Follow-up logged 10:55" },
+
+  { id: "FE-MP-0217", name: "Rakesh Yadav", village: "Multai", district: "Betul", x: 203, y: 385, status: "in_boundary", checkInTime: "08:51", lastActivity: "Enrolment logged 10:17" },
+  { id: "FE-MP-0220", name: "Sandeep Jatav", village: "Athner", district: "Betul", x: 202, y: 377, status: "in_boundary", checkInTime: "08:51", lastActivity: "Enrolment logged 10:41" },
+  { id: "FE-MP-0223", name: "Anil Sharma", village: "Bhainsdehi", district: "Betul", x: 211, y: 376, status: "not_checked_in", checkInTime: null, lastActivity: "No activity logged" },
+  { id: "FE-MP-0226", name: "Geeta Kori", village: "Chicholi", district: "Betul", x: 206, y: 339, status: "in_boundary", checkInTime: "09:38", lastActivity: "Household visit logged 12:02" },
+  { id: "FE-MP-0229", name: "Sunil Lodhi", village: "Ghoradongri", district: "Betul", x: 208, y: 342, status: "in_boundary", checkInTime: "08:47", lastActivity: "Follow-up visit logged 11:05" },
+  { id: "FE-MP-0232", name: "Sandeep Sahu", village: "Shahpur", district: "Betul", x: 169, y: 339, status: "in_boundary", checkInTime: "08:25", lastActivity: "Enrolment logged 10:47" },
+  { id: "FE-MP-0235", name: "Ajay Chauhan", village: "Amla", district: "Betul", x: 171, y: 377, status: "in_boundary", checkInTime: "09:13", lastActivity: "Follow-up logged 11:21" },
+  { id: "FE-MP-0238", name: "Vijay Kushwaha", village: "Prabhat Pattan", district: "Betul", x: 254, y: 340, status: "in_boundary", checkInTime: "08:45", lastActivity: "Follow-up logged 11:16" },
+
+  { id: "FE-MP-0241", name: "Rakesh Jatav", village: "Bijawar", district: "Chhatarpur", x: 625, y: 370, status: "in_boundary", checkInTime: "08:04", lastActivity: "Enrolment logged 09:10" },
+  { id: "FE-MP-0244", name: "Rajesh Lodhi", village: "Naugaon", district: "Chhatarpur", x: 590, y: 419, status: "in_boundary", checkInTime: "08:59", lastActivity: "Group session logged 09:04" },
+  { id: "FE-MP-0247", name: "Anil Verma", village: "Laundi", district: "Chhatarpur", x: 593, y: 404, status: "in_boundary", checkInTime: "08:55", lastActivity: "Enrolment logged 09:17" },
+  { id: "FE-MP-0250", name: "Vijay Jatav", village: "Bakswaha", district: "Chhatarpur", x: 654, y: 381, status: "in_boundary", checkInTime: "08:30", lastActivity: "Enrolment logged 11:00" },
+  { id: "FE-MP-0253", name: "Rajesh Thakur", village: "Rajnagar", district: "Chhatarpur", x: 611, y: 361, status: "in_boundary", checkInTime: "08:44", lastActivity: "Enrolment logged 09:26" },
+  { id: "FE-MP-0256", name: "Ashok Kushwaha", village: "Ghuwara", district: "Chhatarpur", x: 666, y: 418, status: "in_boundary", checkInTime: "08:58", lastActivity: "Follow-up logged 10:50" },
+  { id: "FE-MP-0259", name: "Sarita Chauhan", village: "Badamalhera", district: "Chhatarpur", x: 650, y: 379, status: "outside_boundary", checkInTime: "08:21", lastActivity: "Group session logged 11:55" },
+  { id: "FE-MP-0262", name: "Radha Vishwakarma", village: "Buxwaha", district: "Chhatarpur", x: 658, y: 388, status: "in_boundary", checkInTime: "09:09", lastActivity: "Enrolment logged 10:08" },
+  { id: "FE-MP-0265", name: "Rakesh Rajput", village: "Nowgong", district: "Chhatarpur", x: 623, y: 361, status: "outside_boundary", checkInTime: "08:34", lastActivity: "Group session logged 09:36" },
+];
+
+// ---------------------------------------------------------------------------
+// A2. Attendance today
+// ---------------------------------------------------------------------------
+
+export const attendanceToday = {
+  present: 51,
+  total: 55,
+  onTime: 44,
+  late: 7,
+  absent: 3,
+  onLeave: 1,
+  pendingLocationVerification: 4,
+};
+
+// ---------------------------------------------------------------------------
+// A3. Outreach KPIs
+// ---------------------------------------------------------------------------
+
+export interface OutreachKpi {
+  label: string;
+  value: string;
+  sub: string;
+  trend?: "up" | "down";
+}
+
+export const outreachKpis: OutreachKpi[] = [
+  { label: "Households reached", value: "3,412", sub: "this month, against a target of 4,000" },
+  { label: "Villages covered", value: "128", sub: "of 140 mapped" },
+  { label: "Sessions conducted", value: "246", sub: "18 today" },
+  { label: "Enrolment conversion", value: "38%", sub: "up from 31% last month", trend: "up" },
+  { label: "Beneficiaries enrolled", value: "1,297", sub: "84 pending verification" },
+  { label: "Avg per executive", value: "62", sub: "households per executive per month" },
+];
+
+export interface DistrictOutreach {
+  district: string;
+  households: number;
+}
+
+export const districtOutreach: DistrictOutreach[] = [
+  { district: "Bhopal", households: 640 },
+  { district: "Sagar", households: 610 },
+  { district: "Vidisha", households: 590 },
+  { district: "Damoh", households: 520 },
+  { district: "Betul", households: 480 },
+  { district: "Chhatarpur", households: 572 },
+];
+
+// Per-district reference target line (monthly programme target of 4,000 split evenly).
+export const districtOutreachTarget = 667;
+
+// ---------------------------------------------------------------------------
+// A4. Payroll and finance
+// ---------------------------------------------------------------------------
+
+export const payroll = {
+  executiveCount: 55,
+  grossWageLabel: "₹9.84L",
+  wageRunStatus: "Locked 10 March",
+  overtimeHoursTotal: 412,
+  overtimeHoursUnapproved: 38,
+  advancesOutstandingLabel: "₹1.42L",
+  advancesExecutiveCount: 19,
+  reimbursementsPendingCount: 23,
+  reimbursementsPendingLabel: "₹68,400",
+  reimbursementsOldestDays: 6,
+  nextDisbursementDate: "15 March",
+};
+
+// ---------------------------------------------------------------------------
+// A5. Compliance and IR desk
+// ---------------------------------------------------------------------------
+
+export type ComplianceStatus = "filed" | "due" | "escalated" | "expired";
+
+export const compliance = {
+  pfEcr: { period: "February", status: "filed" as ComplianceStatus, note: "Challan stored" },
+  esic: { period: "February", status: "filed" as ComplianceStatus, note: "Challan stored" },
+  professionalTax: { statesFiled: 2, statesTotal: 3, dueInDays: 4 },
+  minimumWage: { state: "MP", effectiveDate: "01 Jan", appliedToCount: 22 },
+  registers: ["Form A", "Form B", "Overtime register"],
+  clra: { location: "Bhopal", renewalInDays: 41 },
+};
+
+export const irDesk = {
+  openGrievances: 4,
+  items: [
+    { type: "Wage dispute", district: "Sagar", raisedDaysAgo: 9, status: "escalated" as ComplianceStatus },
+  ],
+};
+
+// ---------------------------------------------------------------------------
+// A6. Issues and escalations
+// ---------------------------------------------------------------------------
+
+export interface IssueRow {
+  label: string;
+  detail: string;
+}
+
+export const issues: IssueRow[] = [
+  { label: "Location mismatch", detail: "4 executives · today" },
+  { label: "No check-in for 2 days", detail: "1 executive · Vidisha" },
+  { label: "Reimbursement claim over 5 days old", detail: "6 claims" },
+  { label: "Grievance escalated to IR", detail: "1 case" },
+];
+
+// ---------------------------------------------------------------------------
+// Screen B: Field executive view (Sunita Devi)
+// ---------------------------------------------------------------------------
+
+export const fieldExecutive = {
+  name: "Sunita Devi",
+  id: "FE-MP-0284",
+  district: "Sagar district",
+  dateLabel: "12 March 2026",
+
+  today: {
+    checkIn: {
+      time: "09:12",
+      village: "Bamhori",
+      verified: true,
+    },
+    target: { total: 4, done: 2 },
+    logActionLabel: "नई गतिविधि दर्ज करें · Log new activity",
+    entries: [
+      { time: "10:22", village: "Bamhori", type: "Household visit" },
+      { time: "11:40", village: "Bamhori", type: "Group session" },
+    ],
+  },
+
+  activity: {
+    month: { householdsReached: 62, conversionPct: 38 },
+    target: 70,
+    entries: [
+      { date: "12 Mar", village: "Bamhori", type: "Household visit", photoAttached: true, gpsVerified: true },
+      { date: "12 Mar", village: "Bamhori", type: "Group session", photoAttached: true, gpsVerified: true },
+      { date: "11 Mar", village: "Rehli", type: "Follow-up", photoAttached: false, gpsVerified: true, photoPending: true },
+      { date: "11 Mar", village: "Rehli", type: "Enrolment", photoAttached: true, gpsVerified: true },
+      { date: "10 Mar", village: "Banda", type: "Household visit", photoAttached: true, gpsVerified: true },
+    ],
+  },
+
+  attendance: {
+    march: { present: 21, leave: 2, absent: 1 },
+    overtimeHours: 9,
+    holidaysRemaining: { casual: 4, earned: 6 },
+    // 31-day grid: P present, A absent, L leave, "-" not yet reached / no data.
+    monthGrid: [
+      "P", "P", "P", "P", "P", "L", "P",
+      "P", "P", "A", "P", "P", "P", "L",
+      "P", "P", "P", "P", "P", "P", "P",
+      "P", "P", "P", "P", "P", "P", "P",
+      "-", "-", "-",
+    ],
+    todayIndex: 11, // 12 March, zero-indexed
+    unverifiedCellIndex: 11,
+    unverifiedNote: "Location not verified, marked by supervisor",
+  },
+
+  money: {
+    lastSalary: { month: "February", amount: "₹18,240", creditedDate: "08 March", utr: "N0873…441" },
+    lastReimbursement: { type: "Travel claim", amount: "₹1,180", status: "approved", date: "06 March" },
+    pendingClaim: { type: "Travel", amount: "₹640", submittedDate: "09 March", status: "awaiting approval" },
+    advance: { outstanding: "₹4,000", monthlyDeduction: "₹1,000", instalmentsLeft: 4 },
+  },
+};
