@@ -233,11 +233,29 @@ export const issues: IssueRow[] = [
 // Screen B: Field executive view (Sunita Devi)
 // ---------------------------------------------------------------------------
 
+export interface PhoneTab {
+  key: "today" | "activity" | "attendance" | "money";
+  labelEn: string;
+  labelHi: string;
+}
+
+export const phoneTabs: PhoneTab[] = [
+  { key: "today", labelEn: "Today", labelHi: "आज" },
+  { key: "activity", labelEn: "Activity", labelHi: "गतिविधि" },
+  { key: "attendance", labelEn: "Attendance", labelHi: "हाज़िरी" },
+  { key: "money", labelEn: "Money", labelHi: "पैसा" },
+];
+
 export const fieldExecutive = {
   name: "Sunita Devi",
   id: "FE-MP-0284",
   district: "Sagar district",
   dateLabel: "12 March 2026",
+
+  labels: {
+    downloadPayslip: "वेतन पर्ची डाउनलोड करें · Download payslip",
+    raiseQuery: "क्वेरी दर्ज करें · Raise a query",
+  },
 
   today: {
     checkIn: {
