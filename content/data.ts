@@ -86,7 +86,10 @@ export const fieldPinsBaseline: FieldPin[] = [
   { id: "FE-MP-0127", name: "Deepak Verma", village: "Barkheda", district: "Bhopal", x: 203, y: 158, status: "not_checked_in", checkInTime: null, lastActivity: "No activity logged" },
   { id: "FE-MP-0130", name: "Meena Kori", village: "Gunga", district: "Bhopal", x: 237, y: 119, status: "in_boundary", checkInTime: "08:48", lastActivity: "Household visit logged 10:51" },
 
-  { id: "FE-MP-0284", name: "Sunita Devi", village: "Rehli", district: "Sagar", x: 558, y: 140, status: "in_boundary", checkInTime: "09:12", lastActivity: "Group session logged 11:40" },
+  // Not checked in at baseline, on purpose: the field-exec demo login starts
+  // the day fresh so checking in is itself a live action to demo. See
+  // fieldExecutive.today.checkIn below and lib/liveStore.tsx CHECK_IN.
+  { id: "FE-MP-0284", name: "Sunita Devi", village: "Rehli", district: "Sagar", x: 558, y: 140, status: "not_checked_in", checkInTime: null, lastActivity: "No activity logged" },
   { id: "FE-MP-0136", name: "Manju Jatav", village: "Banda", district: "Sagar", x: 556, y: 83, status: "in_boundary", checkInTime: "08:41", lastActivity: "Group session logged 11:17" },
   { id: "FE-MP-0139", name: "Sanjay Verma", village: "Khurai", district: "Sagar", x: 564, y: 147, status: "in_boundary", checkInTime: "08:26", lastActivity: "Group session logged 10:49" },
   { id: "FE-MP-0142", name: "Meena Kori", village: "Deori", district: "Sagar", x: 519, y: 152, status: "outside_boundary", checkInTime: "09:10", lastActivity: "Group session logged 12:11" },
@@ -354,29 +357,30 @@ export const fieldExecutive = {
     downloadPayslip: "वेतन पर्ची डाउनलोड करें · Download payslip",
     raiseQuery: "क्वेरी दर्ज करें · Raise a query",
     logActivity: "नई गतिविधि दर्ज करें · Log new activity",
+    checkIn: "चेक इन करें · Check in",
   },
 
   // Live baseline: seeds lib/liveStore.tsx. The store, not this object, is
   // read by TodayTab and ActivityTab from here on.
+  //
+  // Not checked in yet, on purpose: a fresh demo starts her day before it's
+  // started, so "check in" is itself a live action, not a foregone
+  // conclusion. Today's target and entries are correspondingly empty; she
+  // cannot log field activity before checking in. See lib/liveStore.tsx
+  // CHECK_IN and LOG_ACTIVITY.
   today: {
-    checkIn: {
-      time: "09:12",
-      village: "Rehli",
-      verified: true,
-    },
-    target: { total: 4, done: 2 },
-    entries: [
-      { time: "10:22", village: "Rehli", type: "Household visit" as ActivityType, photoAttached: true, gpsVerified: true },
-      { time: "11:40", village: "Rehli", type: "Group session" as ActivityType, photoAttached: true, gpsVerified: true },
-    ] as LoggedEntry[],
+    checkIn: null as { time: string; village: string; verified: boolean } | null,
+    homeVillage: "Rehli",
+    target: { total: 4, done: 0 },
+    entries: [] as LoggedEntry[],
   },
 
   activity: {
-    month: { householdsReached: 62, conversionPct: 38 },
+    // 61, not 62: the one household visit she'd normally have logged by
+    // now is what the live CHECK_IN + LOG_ACTIVITY demo flow adds back.
+    month: { householdsReached: 61, conversionPct: 38 },
     target: 70,
     entries: [
-      { date: "12 Mar", village: "Rehli", type: "Household visit" as ActivityType, photoAttached: true, gpsVerified: true },
-      { date: "12 Mar", village: "Rehli", type: "Group session" as ActivityType, photoAttached: true, gpsVerified: true },
       { date: "11 Mar", village: "Rehli", type: "Follow-up" as ActivityType, photoAttached: false, gpsVerified: true, photoPending: true },
       { date: "11 Mar", village: "Rehli", type: "Enrolment" as ActivityType, photoAttached: true, gpsVerified: true },
       { date: "10 Mar", village: "Banda", type: "Household visit" as ActivityType, photoAttached: true, gpsVerified: true },

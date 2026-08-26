@@ -67,11 +67,32 @@ and money tabs. A field exec's phone action wouldn't plausibly move payroll
 or compliance numbers in real time, so don't wire those up without deciding
 that's actually wanted first.
 
-The only field-exec action currently wired up is **log new activity**
-(`components/field/LogActivityForm.tsx` → `useLiveStore().logActivity`).
-Check-in is not interactive: Sunita's baseline data already shows her
-checked in, to keep the brief's stated numbers (51 of 55 present, 47 in
-boundary, etc.) accurate on first load.
+Two field-exec actions are wired up: **check in**
+(`components/field/TodayTab.tsx` → `useLiveStore().checkIn`) and **log new
+activity** (`components/field/LogActivityForm.tsx` →
+`useLiveStore().logActivity`). Logging an activity is blocked, in both the UI
+and the reducer, until check-in has happened, same as it would be in a real
+field app.
+
+**This means Sunita's baseline is deliberately "before her day has started":**
+not checked in, her `today` tab empty, `target.done: 0`. Her map pin starts
+`not_checked_in` rather than `in_boundary`. That's a conscious trade-off: the
+brief's exact stated map counts (47 in boundary, 51 of 55 present, etc.) only
+hold once she's checked in, not on a literal first paint. A presenter should
+check her in as the first beat of the /field half of the demo, at which point
+the map's live-computed legend (already dynamic, see `countPinsByStatus`)
+lands back on the brief's numbers. If a demo needs those exact numbers to be
+true before any interaction at all (e.g. a screenshot for a deck), that's a
+different, static-only need, don't reach for this store to solve it, just
+hardcode a screenshot-only variant or ask for guidance.
+
+The static "Attendance Today" panel on `/programme` is intentionally **not**
+recomputed from her check-in: it would need a placeholder bucket for "not yet
+accounted for" to keep its rows summing to 55, which isn't built. Its numbers
+match the brief exactly and don't move during a demo, only the map's own
+legend and Sunita's phone view do. Real attendance rollups often lag anyway,
+so this is a defensible product simplification, not just a shortcut, but if a
+future change wants that panel live too, this note is why it currently isn't.
 
 ## Everything else from the original brief still applies
 
