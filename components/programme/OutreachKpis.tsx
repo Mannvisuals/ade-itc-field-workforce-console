@@ -1,13 +1,19 @@
+"use client";
+
 import { Panel } from "@/components/ui/Panel";
 import { StatCard } from "@/components/ui/StatCard";
-import { outreachKpis } from "@/content/data";
+import { buildOutreachKpis } from "@/content/data";
+import { useLiveStore } from "@/lib/liveStore";
 import { DistrictChart } from "@/components/programme/DistrictChart";
 
 export function OutreachKpis() {
+  const { state } = useLiveStore();
+  const kpis = buildOutreachKpis(state.outreachStats);
+
   return (
     <Panel title="Outreach KPIs">
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-6">
-        {outreachKpis.map((kpi) => (
+        {kpis.map((kpi) => (
           <StatCard
             key={kpi.label}
             label={kpi.label}

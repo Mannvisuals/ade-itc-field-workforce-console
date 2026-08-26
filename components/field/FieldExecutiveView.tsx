@@ -39,12 +39,14 @@ export function FieldExecutiveView() {
   const ActiveContent = TAB_CONTENT[activeTab];
 
   return (
-    <div className="flex flex-col items-center gap-10 py-4 lg:flex-row lg:items-start lg:justify-center">
+    <div className="flex flex-col items-center gap-0 sm:gap-10 sm:py-4 lg:flex-row lg:items-start lg:justify-center">
       <PhoneFrame activeTab={activeTab} onTabChange={setActiveTab}>
         <ActiveContent />
       </PhoneFrame>
 
-      <div className="max-w-sm">
+      {/* Presenter-facing explainer: only shown once the phone chrome shows
+          (sm and up). A real phone visiting /field sees just the app. */}
+      <div className="hidden max-w-sm sm:block">
         <p className="panel-title">Field executive view</p>
         <h2 className="mt-1 text-[18px] font-semibold text-deep">
           {fieldExecutive.name}

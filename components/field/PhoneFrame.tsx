@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import {
   Home,
   Activity as ActivityIcon,
@@ -9,8 +10,10 @@ import {
   Signal,
   Wifi,
   BatteryFull,
+  LogOut,
 } from "lucide-react";
-import { phoneTabs, type PhoneTab } from "@/content/data";
+import { phoneTabs, fieldExecutive, type PhoneTab } from "@/content/data";
+import { useSession } from "@/lib/session";
 
 const TAB_ICONS: Record<PhoneTab["key"], typeof Home> = {
   today: Home,
@@ -28,9 +31,20 @@ export function PhoneFrame({
   onTabChange: (tab: PhoneTab["key"]) => void;
   children: ReactNode;
 }) {
+  const { logout } = useSession();
+  const router = useRouter();
+
+  function handleLogout() {
+    logout();
+    router.replace("/login");
+  }
+
   return (
-    <div className="mx-auto w-[340px] shrink-0 rounded-[42px] bg-deep p-3 shadow-xl">
-      <div className="flex h-[700px] flex-col overflow-hidden rounded-[30px] bg-paper">
+    // Below `sm`, this is a real mobile web app: full-bleed, no bezel. At
+    // `sm` and above (presenting on a laptop or tablet) it gets the phone
+    // chrome so a client can see it's a distinct mobile surface.
+    <div className="w-full shrink-0 bg-paper sm:mx-auto sm:w-[340px] sm:rounded-[42px] sm:bg-deep sm:p-3 sm:shadow-xl">
+      <div className="flex h-[100dvh] flex-col overflow-hidden bg-paper sm:h-[700px] sm:rounded-[30px]">
         {/* Status bar */}
         <div className="flex items-center justify-between bg-deep px-5 py-2 font-mono text-[11px] text-white">
           <span>09:41</span>
@@ -39,6 +53,26 @@ export function PhoneFrame({
             <Wifi size={12} />
             <BatteryFull size={14} />
           </span>
+        </div>
+
+        {/* App header */}
+        <div className="flex items-center justify-between border-b border-rule bg-card px-4 py-2">
+          <div>
+            <p className="text-[12px] font-semibold text-deep">
+              {fieldExecutive.name}
+            </p>
+            <p className="font-mono text-[10px] text-deep3">
+              {fieldExecutive.id}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="flex items-center gap-1 text-[11px] text-deep3 hover:text-alert"
+          >
+            <LogOut size={12} />
+            Log out
+          </button>
         </div>
 
         {/* Tab content */}

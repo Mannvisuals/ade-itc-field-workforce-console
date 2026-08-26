@@ -9,14 +9,17 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import { districtOutreach, districtOutreachTarget } from "@/content/data";
+import { districtOutreachTarget } from "@/content/data";
+import { useLiveStore } from "@/lib/liveStore";
 
 export function DistrictChart() {
+  const { state } = useLiveStore();
+
   return (
     <div className="h-56 w-full">
       <ResponsiveContainer width="100%" height="100%">
         <BarChart
-          data={districtOutreach}
+          data={state.districtOutreach}
           margin={{ top: 8, right: 8, left: -16, bottom: 0 }}
         >
           <CartesianGrid vertical={false} stroke="#D8DDE0" strokeDasharray="0" opacity={0.6} />

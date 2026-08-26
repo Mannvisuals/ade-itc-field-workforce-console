@@ -1,20 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { ViewSwitcher, type View } from "@/components/ViewSwitcher";
-import { ProgrammeView } from "@/components/programme/ProgrammeView";
-import { FieldExecutiveView } from "@/components/field/FieldExecutiveView";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "@/lib/session";
 
+// Entry point: routes to the signed-in user's view, or to the login screen.
 export default function Home() {
-  const [view, setView] = useState<View>("programme");
+  const { session, ready } = useSession();
+  const router = useRouter();
 
-  return (
-    <main className="mx-auto max-w-[1600px] px-6 py-5">
-      <div className="mb-4 flex justify-end">
-        <ViewSwitcher view={view} onChange={setView} />
-      </div>
+  useEffect(() => {
+    if (!ready) return;
+    router.replace(session ? (session.role === "programme" ? "/programme" : "/field") : "/login");
+  }, [ready, session, router]);
 
-      {view === "programme" ? <ProgrammeView /> : <FieldExecutiveView />}
-    </main>
-  );
+  return null;
 }
