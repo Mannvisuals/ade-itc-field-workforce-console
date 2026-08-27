@@ -94,6 +94,28 @@ legend and Sunita's phone view do. Real attendance rollups often lag anyway,
 so this is a defensible product simplification, not just a shortcut, but if a
 future change wants that panel live too, this note is why it currently isn't.
 
+## Branding
+
+The brief's non-negotiable #2 was "No real client names, logos or data
+anywhere in the application." **That rule is now overridden, on purpose, at
+the user's explicit request**, made twice: once when naming the GitHub repo
+(`ade-itc-field-workforce-console`), and again when asked directly to rename
+the in-app programme from "Disha Field Programme" to **"ITC FieldView"**
+(`content/data.ts` → `programme.name`). This is a real prospective client
+name (ITC), now inside the rendered application itself, not just repo/URL
+infrastructure. That's a materially bigger exposure than the repo name was,
+flagged as such when it happened, and the user chose to proceed anyway,
+saying branding would be refined later.
+
+Practical effect: don't revert `programme.name` back to something generic
+thinking it's restoring brief compliance, it isn't a bug. Do keep everything
+else the brief protects against real client exposure intact unless similarly
+instructed: no ITC logo, no invented ITC-specific metrics, and the page
+`<title>` stays "Field Workforce Console" (a separate, more explicit rule
+that hasn't been touched). If more ITC-specific branding lands later, log it
+here the same way, and remember the production Vercel URL becomes the
+exposure surface, not just the source: mind who that link goes to.
+
 ## Everything else from the original brief still applies
 
 - All mock data lives in `content/data.ts`. Never hardcode a number, name or
@@ -101,10 +123,11 @@ future change wants that panel live too, this note is why it currently isn't.
 - Shared UI primitives live in `components/ui/`. Reuse them.
 - Design tokens live in `tailwind.config.ts`. Never write a raw hex value in
   a component.
-- No em-dashes anywhere. No real client names, logos or data. No invented
-  metrics or testimonials. Nothing described as live/in production outside
-  of the demo's own narrative ("LIVE" on the map panel refers to the demo's
-  cross-tab sync, not a real production system).
+- No em-dashes anywhere. No invented metrics or testimonials. Nothing
+  described as live/in production outside of the demo's own narrative ("LIVE"
+  on the map panel refers to the demo's cross-tab sync, not a real production
+  system). See "Branding" above for the one deliberate exception to "no real
+  client names."
 - Every panel keeps at least one problem state in its data.
 - If a change requires editing a file outside what you were asked to do, say
   so and stop.
