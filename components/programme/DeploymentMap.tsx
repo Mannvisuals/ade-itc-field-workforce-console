@@ -2,13 +2,8 @@
 
 import { useState } from "react";
 import { Panel } from "@/components/ui/Panel";
-import {
-  fieldPins,
-  districtLabels,
-  mapCounts,
-  type FieldPin,
-  type PinStatus,
-} from "@/content/data";
+import { districtLabels, countPinsByStatus, type FieldPin, type PinStatus } from "@/content/data";
+import { useLiveStore } from "@/lib/liveStore";
 
 const STATUS_COLOR: Record<PinStatus, string> = {
   in_boundary: "#5AB552",
@@ -36,9 +31,24 @@ const clusters: { name: string; cx: number; cy: number; rx: number; ry: number }
 
 export function DeploymentMap() {
   const [hovered, setHovered] = useState<FieldPin | null>(null);
+  const { state } = useLiveStore();
+  const pins = state.pins;
+  const counts = countPinsByStatus(pins);
 
   return (
-    <Panel title="Live deployment map" className="h-full">
+    <Panel
+      title="Live deployment map"
+      className="h-full"
+      action={
+        <span className="flex items-center gap-1.5 font-mono text-[10px] text-verified">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-verified opacity-60" />
+            <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-verified" />
+          </span>
+          LIVE
+        </span>
+      }
+    >
       <div className="relative">
         <svg
           viewBox="0 0 800 500"
@@ -92,7 +102,7 @@ export function DeploymentMap() {
           ))}
 
           {/* Pins */}
-          {fieldPins.map((pin) => {
+          {pins.map((pin) => {
             const isHovered = hovered?.id === pin.id;
             return (
               <g
@@ -160,12 +170,7 @@ export function DeploymentMap() {
               style={{ backgroundColor: STATUS_COLOR[status] }}
             />
             {STATUS_LABEL[status]}
-            <span className="font-mono text-deep">
-              {status === "in_boundary" && mapCounts.inBoundary}
-              {status === "outside_boundary" && mapCounts.outsideBoundary}
-              {status === "not_checked_in" && mapCounts.notCheckedIn}
-              {status === "no_signal" && mapCounts.noSignal}
-            </span>
+            <span className="font-mono text-deep">{counts[status]}</span>
           </span>
         ))}
       </div>

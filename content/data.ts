@@ -1,6 +1,14 @@
 // All mock data for the Field Workforce Console demo.
 // Nothing in the components should hardcode a number, name or status: it all lives here.
-// This is a static demonstration build. Nothing here is live data.
+// This is a demonstration build. Nothing here is connected to a real backend.
+//
+// Some of the slices below are "live baseline": they seed the client-side live
+// store (lib/liveStore.tsx) on first load, and from then on the store, not this
+// file, is the source of truth for them. They are marked as such below. That
+// store is synced across browser tabs on the same machine via BroadcastChannel,
+// so a check-in or activity logged on /field shows up on /programme in another
+// tab. There is no server and no persistence beyond the open tabs: closing every
+// tab resets state back to the baseline defined here.
 
 // ---------------------------------------------------------------------------
 // Programme
@@ -15,7 +23,7 @@ export const programme = {
 };
 
 // ---------------------------------------------------------------------------
-// A1. Live deployment map
+// A1. Live deployment map (live baseline: fieldPins)
 // ---------------------------------------------------------------------------
 
 export type PinStatus =
@@ -52,14 +60,21 @@ export const districtLabels: DistrictLabel[] = [
   { name: "Chhatarpur", labelX: 600, labelY: 445 },
 ];
 
-export const mapCounts = {
-  inBoundary: 47,
-  outsideBoundary: 4,
-  notCheckedIn: 3,
-  noSignal: 1,
-};
+export function countPinsByStatus(pins: FieldPin[]) {
+  const counts: Record<PinStatus, number> = {
+    in_boundary: 0,
+    outside_boundary: 0,
+    not_checked_in: 0,
+    no_signal: 0,
+  };
+  for (const pin of pins) counts[pin.status] += 1;
+  return counts;
+}
 
-export const fieldPins: FieldPin[] = [
+// FE-MP-0284 (Sunita Devi) is the demo field-executive login. Her pin here is
+// the same record her phone view reads and writes, not a separate character:
+// logging an activity on /field updates this pin live.
+export const fieldPinsBaseline: FieldPin[] = [
   { id: "FE-MP-0103", name: "Naveen Rajput", village: "Bamhori", district: "Bhopal", x: 207, y: 143, status: "in_boundary", checkInTime: "09:34", lastActivity: "Enrolment logged 12:27" },
   { id: "FE-MP-0106", name: "Rakesh Dubey", village: "Sehatganj", district: "Bhopal", x: 224, y: 141, status: "in_boundary", checkInTime: "08:01", lastActivity: "Household visit logged 10:22" },
   { id: "FE-MP-0109", name: "Sarita Yadav", village: "Kolar Kalan", district: "Bhopal", x: 235, y: 174, status: "in_boundary", checkInTime: "09:34", lastActivity: "Household visit logged 10:28" },
@@ -71,7 +86,10 @@ export const fieldPins: FieldPin[] = [
   { id: "FE-MP-0127", name: "Deepak Verma", village: "Barkheda", district: "Bhopal", x: 203, y: 158, status: "not_checked_in", checkInTime: null, lastActivity: "No activity logged" },
   { id: "FE-MP-0130", name: "Meena Kori", village: "Gunga", district: "Bhopal", x: 237, y: 119, status: "in_boundary", checkInTime: "08:48", lastActivity: "Household visit logged 10:51" },
 
-  { id: "FE-MP-0133", name: "Vikram Patel", village: "Rehli", district: "Sagar", x: 558, y: 140, status: "in_boundary", checkInTime: "08:17", lastActivity: "Follow-up logged 11:24" },
+  // Not checked in at baseline, on purpose: the field-exec demo login starts
+  // the day fresh so checking in is itself a live action to demo. See
+  // fieldExecutive.today.checkIn below and lib/liveStore.tsx CHECK_IN.
+  { id: "FE-MP-0284", name: "Sunita Devi", village: "Rehli", district: "Sagar", x: 558, y: 140, status: "not_checked_in", checkInTime: null, lastActivity: "No activity logged" },
   { id: "FE-MP-0136", name: "Manju Jatav", village: "Banda", district: "Sagar", x: 556, y: 83, status: "in_boundary", checkInTime: "08:41", lastActivity: "Group session logged 11:17" },
   { id: "FE-MP-0139", name: "Sanjay Verma", village: "Khurai", district: "Sagar", x: 564, y: 147, status: "in_boundary", checkInTime: "08:26", lastActivity: "Group session logged 10:49" },
   { id: "FE-MP-0142", name: "Meena Kori", village: "Deori", district: "Sagar", x: 519, y: 152, status: "outside_boundary", checkInTime: "09:10", lastActivity: "Group session logged 12:11" },
@@ -123,7 +141,7 @@ export const fieldPins: FieldPin[] = [
 ];
 
 // ---------------------------------------------------------------------------
-// A2. Attendance today
+// A2. Attendance today (static)
 // ---------------------------------------------------------------------------
 
 export const attendanceToday = {
@@ -137,7 +155,7 @@ export const attendanceToday = {
 };
 
 // ---------------------------------------------------------------------------
-// A3. Outreach KPIs
+// A3. Outreach KPIs (live baseline: outreachStats, districtOutreach)
 // ---------------------------------------------------------------------------
 
 export interface OutreachKpi {
@@ -147,21 +165,78 @@ export interface OutreachKpi {
   trend?: "up" | "down";
 }
 
-export const outreachKpis: OutreachKpi[] = [
-  { label: "Households reached", value: "3,412", sub: "this month, against a target of 4,000" },
-  { label: "Villages covered", value: "128", sub: "of 140 mapped" },
-  { label: "Sessions conducted", value: "246", sub: "18 today" },
-  { label: "Enrolment conversion", value: "38%", sub: "up from 31% last month", trend: "up" },
-  { label: "Beneficiaries enrolled", value: "1,297", sub: "84 pending verification" },
-  { label: "Avg per executive", value: "62", sub: "households per executive per month" },
-];
+export interface OutreachStats {
+  householdsReached: number;
+  householdsTarget: number;
+  villagesCovered: number;
+  villagesMapped: number;
+  sessionsConducted: number;
+  sessionsToday: number;
+  enrolmentConversionPct: number;
+  enrolmentConversionPrevPct: number;
+  beneficiariesEnrolled: number;
+  beneficiariesPendingVerification: number;
+  avgPerExecutive: number;
+}
+
+export const outreachStatsBaseline: OutreachStats = {
+  householdsReached: 3412,
+  householdsTarget: 4000,
+  villagesCovered: 128,
+  villagesMapped: 140,
+  sessionsConducted: 246,
+  sessionsToday: 18,
+  enrolmentConversionPct: 38,
+  enrolmentConversionPrevPct: 31,
+  beneficiariesEnrolled: 1297,
+  beneficiariesPendingVerification: 84,
+  avgPerExecutive: 62,
+};
+
+// Pure formatter: turns raw stats (static or live) into the six display cards.
+export function buildOutreachKpis(stats: OutreachStats): OutreachKpi[] {
+  const fmt = (n: number) => n.toLocaleString("en-IN");
+  return [
+    {
+      label: "Households reached",
+      value: fmt(stats.householdsReached),
+      sub: `this month, against a target of ${fmt(stats.householdsTarget)}`,
+    },
+    {
+      label: "Villages covered",
+      value: fmt(stats.villagesCovered),
+      sub: `of ${stats.villagesMapped} mapped`,
+    },
+    {
+      label: "Sessions conducted",
+      value: fmt(stats.sessionsConducted),
+      sub: `${stats.sessionsToday} today`,
+    },
+    {
+      label: "Enrolment conversion",
+      value: `${stats.enrolmentConversionPct}%`,
+      sub: `up from ${stats.enrolmentConversionPrevPct}% last month`,
+      trend: "up",
+    },
+    {
+      label: "Beneficiaries enrolled",
+      value: fmt(stats.beneficiariesEnrolled),
+      sub: `${stats.beneficiariesPendingVerification} pending verification`,
+    },
+    {
+      label: "Avg per executive",
+      value: String(stats.avgPerExecutive),
+      sub: "households per executive per month",
+    },
+  ];
+}
 
 export interface DistrictOutreach {
   district: string;
   households: number;
 }
 
-export const districtOutreach: DistrictOutreach[] = [
+export const districtOutreachBaseline: DistrictOutreach[] = [
   { district: "Bhopal", households: 640 },
   { district: "Sagar", households: 610 },
   { district: "Vidisha", households: 590 },
@@ -174,7 +249,7 @@ export const districtOutreach: DistrictOutreach[] = [
 export const districtOutreachTarget = 667;
 
 // ---------------------------------------------------------------------------
-// A4. Payroll and finance
+// A4. Payroll and finance (static)
 // ---------------------------------------------------------------------------
 
 export const payroll = {
@@ -192,7 +267,7 @@ export const payroll = {
 };
 
 // ---------------------------------------------------------------------------
-// A5. Compliance and IR desk
+// A5. Compliance and IR desk (static)
 // ---------------------------------------------------------------------------
 
 export type ComplianceStatus = "filed" | "due" | "escalated" | "expired";
@@ -214,7 +289,7 @@ export const irDesk = {
 };
 
 // ---------------------------------------------------------------------------
-// A6. Issues and escalations
+// A6. Issues and escalations (static)
 // ---------------------------------------------------------------------------
 
 export interface IssueRow {
@@ -246,6 +321,32 @@ export const phoneTabs: PhoneTab[] = [
   { key: "money", labelEn: "Money", labelHi: "पैसा" },
 ];
 
+export type ActivityType =
+  | "Household visit"
+  | "Group session"
+  | "Follow-up"
+  | "Enrolment";
+
+export const activityTypes: ActivityType[] = [
+  "Household visit",
+  "Group session",
+  "Follow-up",
+  "Enrolment",
+];
+
+// Sagar-district villages Sunita Devi actually covers, used for the log-activity form.
+export const sunitaVillages = ["Rehli", "Banda", "Khurai", "Kesli", "Malthone"];
+
+export interface LoggedEntry {
+  time?: string;
+  date?: string;
+  village: string;
+  type: ActivityType;
+  photoAttached: boolean;
+  gpsVerified: boolean;
+  photoPending?: boolean;
+}
+
 export const fieldExecutive = {
   name: "Sunita Devi",
   id: "FE-MP-0284",
@@ -255,34 +356,38 @@ export const fieldExecutive = {
   labels: {
     downloadPayslip: "वेतन पर्ची डाउनलोड करें · Download payslip",
     raiseQuery: "क्वेरी दर्ज करें · Raise a query",
+    logActivity: "नई गतिविधि दर्ज करें · Log new activity",
+    checkIn: "चेक इन करें · Check in",
   },
 
+  // Live baseline: seeds lib/liveStore.tsx. The store, not this object, is
+  // read by TodayTab and ActivityTab from here on.
+  //
+  // Not checked in yet, on purpose: a fresh demo starts her day before it's
+  // started, so "check in" is itself a live action, not a foregone
+  // conclusion. Today's target and entries are correspondingly empty; she
+  // cannot log field activity before checking in. See lib/liveStore.tsx
+  // CHECK_IN and LOG_ACTIVITY.
   today: {
-    checkIn: {
-      time: "09:12",
-      village: "Bamhori",
-      verified: true,
-    },
-    target: { total: 4, done: 2 },
-    logActionLabel: "नई गतिविधि दर्ज करें · Log new activity",
-    entries: [
-      { time: "10:22", village: "Bamhori", type: "Household visit" },
-      { time: "11:40", village: "Bamhori", type: "Group session" },
-    ],
+    checkIn: null as { time: string; village: string; verified: boolean } | null,
+    homeVillage: "Rehli",
+    target: { total: 4, done: 0 },
+    entries: [] as LoggedEntry[],
   },
 
   activity: {
-    month: { householdsReached: 62, conversionPct: 38 },
+    // 61, not 62: the one household visit she'd normally have logged by
+    // now is what the live CHECK_IN + LOG_ACTIVITY demo flow adds back.
+    month: { householdsReached: 61, conversionPct: 38 },
     target: 70,
     entries: [
-      { date: "12 Mar", village: "Bamhori", type: "Household visit", photoAttached: true, gpsVerified: true },
-      { date: "12 Mar", village: "Bamhori", type: "Group session", photoAttached: true, gpsVerified: true },
-      { date: "11 Mar", village: "Rehli", type: "Follow-up", photoAttached: false, gpsVerified: true, photoPending: true },
-      { date: "11 Mar", village: "Rehli", type: "Enrolment", photoAttached: true, gpsVerified: true },
-      { date: "10 Mar", village: "Banda", type: "Household visit", photoAttached: true, gpsVerified: true },
-    ],
+      { date: "11 Mar", village: "Rehli", type: "Follow-up" as ActivityType, photoAttached: false, gpsVerified: true, photoPending: true },
+      { date: "11 Mar", village: "Rehli", type: "Enrolment" as ActivityType, photoAttached: true, gpsVerified: true },
+      { date: "10 Mar", village: "Banda", type: "Household visit" as ActivityType, photoAttached: true, gpsVerified: true },
+    ] as LoggedEntry[],
   },
 
+  // Static (attendance tab and money tab do not change live in this build).
   attendance: {
     march: { present: 21, leave: 2, absent: 1 },
     overtimeHours: 9,
@@ -307,3 +412,23 @@ export const fieldExecutive = {
     advance: { outstanding: "₹4,000", monthlyDeduction: "₹1,000", instalmentsLeft: 4 },
   },
 };
+
+// ---------------------------------------------------------------------------
+// Login (demo only)
+// ---------------------------------------------------------------------------
+
+export interface DemoAccount {
+  loginId: string;
+  password: string;
+  role: "programme" | "field";
+  displayName: string;
+}
+
+// Demo-only credentials, used purely to route the login screen to the right
+// view. Not real authentication: visible in the client bundle, no backend,
+// no password hashing, no session security. That is intentional for a
+// demonstration build with no auth system behind it.
+export const demoAccounts: DemoAccount[] = [
+  { loginId: "admin", password: "admin123", role: "programme", displayName: "Programme Admin" },
+  { loginId: fieldExecutive.id, password: "field123", role: "field", displayName: fieldExecutive.name },
+];
