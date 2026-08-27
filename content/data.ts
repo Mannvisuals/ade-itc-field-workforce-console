@@ -15,7 +15,10 @@
 // ---------------------------------------------------------------------------
 
 export const programme = {
-  name: "Disha Field Programme",
+  // Branded for this specific demo. See CLAUDE.md "Branding" section: this
+  // is a deliberate departure from the brief's "no real client names
+  // anywhere in the application" rule, made knowingly, not by accident.
+  name: "ITC FieldView",
   staffCount: 55,
   districtCount: 6,
   monthLabel: "March 2026",
