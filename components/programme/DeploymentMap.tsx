@@ -8,9 +8,17 @@ import { useLiveStore } from "@/lib/liveStore";
 const STATUS_COLOR: Record<PinStatus, string> = {
   in_boundary: "#5AB552",
   outside_boundary: "#F6C445",
-  not_checked_in: "#9AA7AE",
+  // Darker than the original #9AA7AE: a light grey pin with a white ring
+  // was nearly invisible against the map's pale background. This one, plus
+  // the attention ring below, is easy to spot at a glance.
+  not_checked_in: "#5B7383",
   no_signal: "#D14343",
 };
+
+// Statuses that need to stand out rather than blend in: a pale grey or a
+// single red dot among fifty green ones is easy to miss on a quick glance,
+// so these get a ring around them, not just a color.
+const RINGED_STATUSES: PinStatus[] = ["not_checked_in", "no_signal"];
 
 const STATUS_LABEL: Record<PinStatus, string> = {
   in_boundary: "Checked in, in boundary",
@@ -120,7 +128,7 @@ export function DeploymentMap() {
                   strokeWidth={1.5}
                   className="transition-all"
                 />
-                {pin.status === "no_signal" ? (
+                {RINGED_STATUSES.includes(pin.status) ? (
                   <circle
                     cx={pin.x}
                     cy={pin.y}
