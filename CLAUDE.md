@@ -23,32 +23,56 @@ a slide with a toggle. Read the amendments below before assuming the brief's
   localStorage or sessionStorage" rule: it stores only `{role, loginId,
   displayName}`, nothing else. Don't use storage for anything beyond session
   identity without raising it explicitly, the same way this exception was.
-- **Field-executive actions are live and sync across browser tabs.**
+- **Field-executive actions are live and sync across devices.**
   `lib/liveStore.tsx` holds the mutable slices of the demo (map pins, outreach
-  counters, the field executive's own today/activity log) and syncs them
-  across tabs on the same browser via `BroadcastChannel`. There is still no
-  server and no persistence beyond open tabs: closing every tab resets state
-  back to the baseline in `content/data.ts`. This only syncs tabs on the same
-  machine, not two independent devices over the internet, on purpose, see
-  below.
+  counters, the field executive's own today/activity log) and syncs them via
+  a pub/sub layer with two transports, chosen automatically by
+  `lib/supabaseClient.ts`:
+  - **Supabase Realtime Broadcast**, when `NEXT_PUBLIC_SUPABASE_URL` and
+    `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set (they are, in all three Vercel
+    environments as of this writing): syncs across *independent devices* over
+    the internet, e.g. a real phone and a real PC in different browsers. This
+    is what lets `/field` on a phone update `/programme` on a laptop live.
+  - **`BroadcastChannel`**, when those env vars are absent (e.g. local dev
+    with no `.env.local`): same-device-only fallback, zero network
+    dependency.
+  Either way there is still no database write and no API route: it's a pure
+  message relay, not application state storage. Closing every
+  tab/device/browser resets state back to the baseline in `content/data.ts`.
 
-## Why not a real backend
+## Why Supabase Realtime, not a full backend, and what changed
 
-A real shared backend (database + API routes) would give true sync across
-independent devices, but it breaks two things the original brief was
-explicit about and that still matter for a live client demo:
+The original stance here was "no backend, same-device sync only," to protect
+two things the brief was explicit about. That stance changed, deliberately,
+when the user asked for a demo where a real phone updates a real PC live —
+same-device sync structurally cannot do that, no matter how it's built. Here
+is what actually changed and what didn't:
 
-- **"Works fully offline once loaded, no external API calls."** A backend
-  dependency means the demo can fail on bad conference wifi, exactly the
-  failure mode the brief called out by name.
-- **Zero-config Vercel deploy, no environment variables.** A database needs
-  connection secrets and infrastructure to provision and maintain.
-
-`BroadcastChannel` gets most of the "this is a real interconnected product"
-effect for a live demo (presenter drives both views from two tabs on their
-own laptop) with none of that risk. If a future need genuinely requires
-cross-device sync, that's a real architecture conversation to have with
-whoever's running the demo, not a default to reach for.
+- **"Works fully offline once loaded, no external API calls."** This is now
+  genuinely relaxed when Supabase env vars are present: the live-sync feature
+  needs internet at the demo venue. Nothing else does — the rest of the app
+  (all the static panels, the map's own rendering, login) has no other
+  network dependency. If Supabase is unreachable, the transport falls back to
+  same-device-only sync per browser, not a crash; the demo degrades rather
+  than breaks, but cross-device sync specifically won't work without a
+  connection. Check the venue has working wifi before relying on this.
+- **"Zero-config Vercel deploy, no environment variables."** Also relaxed:
+  `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` are set on
+  the Vercel project (all three environments) and in `.env.local` locally
+  (gitignored, never commit it). Both are safe to expose client-side by
+  design — the anon/publishable key carries no access to anything, since no
+  database table or storage bucket is used, only ephemeral Broadcast
+  messaging. Losing or rotating them means redoing
+  `vercel env add NEXT_PUBLIC_SUPABASE_URL <env>` etc. for all three
+  environments (production, preview, development).
+- **What's still true:** no database, no server-side application code, no API
+  routes, no persistence beyond what's live in open browsers right now. This
+  is a message relay, not a backend for the app's data model. Don't let this
+  precedent justify adding a real database or API routes without a similarly
+  explicit ask.
+- `@supabase/supabase-js` is now a real dependency (`package.json`), added
+  for this specific reason. Don't add further dependencies on that
+  precedent without being asked, same as always.
 
 ## What's live vs. static
 
@@ -146,4 +170,14 @@ exposure surface, not just the source: mind who that link goes to.
 - The change renders correctly at 1440 and 1280 widths
 - If it touches `/field`, check it at a real mobile width (375) too, the
   phone bezel is presentation chrome and should disappear there
+- If it touches `lib/liveStore.tsx`, verify sync still works: two tabs is
+  enough to prove the mechanism (Supabase relays over the real internet
+  regardless of whether both tabs happen to share a machine), no need for
+  an actual second device to confirm a code change didn't break it
 - No new dependency was added without being asked
+
+## Reference
+
+- Supabase project: "FieldView" under the "AamDhanE" org, project ref
+  `qmdnqhsxtjiekzhicyuf`. Realtime Broadcast only, no tables/schema in use.
+  Dashboard: https://supabase.com/dashboard/project/qmdnqhsxtjiekzhicyuf
