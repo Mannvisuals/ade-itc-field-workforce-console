@@ -5,11 +5,17 @@
 // today/activity log. Everything else (payroll, compliance, attendance,
 // issues) stays static and is read straight from content/data.ts.
 //
-// State is synced across browser tabs on the same machine via BroadcastChannel
-// so that checking in or logging an activity on /field is visible on
-// /programme in another tab a moment later. There is no server: a fresh
-// browser (or all tabs closed) always starts back at the baseline defined in
-// content/data.ts, i.e. Sunita Devi not yet checked in for the day.
+// State syncs across browsers via a small pub/sub layer with two possible
+// transports, picked automatically:
+//   - Supabase Realtime Broadcast, when NEXT_PUBLIC_SUPABASE_URL and
+//     NEXT_PUBLIC_SUPABASE_ANON_KEY are set: works across separate devices
+//     over the internet (a phone and a laptop, in different browsers). This
+//     is what makes /field on a real phone update /programme on a PC.
+//   - BroadcastChannel, when those env vars are absent: same-device only,
+//     but zero network dependency, so local dev needs no setup.
+// Either way there is no server-side state and no database write: a fresh
+// browser (or every tab/device closed) always starts back at the baseline
+// defined in content/data.ts, i.e. Sunita Devi not yet checked in for the day.
 
 import {
   createContext,
@@ -19,6 +25,8 @@ import {
   useRef,
   type ReactNode,
 } from "react";
+import type { RealtimeChannel } from "@supabase/supabase-js";
+import { supabase } from "@/lib/supabaseClient";
 import {
   fieldExecutive,
   fieldPinsBaseline,
@@ -175,40 +183,65 @@ interface LiveStoreContextValue {
 
 const LiveStoreContext = createContext<LiveStoreContextValue | null>(null);
 
+type SyncMessage =
+  | { type: "REQUEST_STATE" }
+  | { type: "STATE_SNAPSHOT"; payload: LiveState }
+  | { type: "ACTION"; action: LiveAction };
+
 export function LiveStoreProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(reducer, undefined, buildInitialState);
-  const channelRef = useRef<BroadcastChannel | null>(null);
+  // Set once the chosen transport (Supabase or BroadcastChannel) is ready to
+  // publish. Calling publishRef before then would silently drop the message.
+  const publishRef = useRef<((msg: SyncMessage) => void) | null>(null);
   const stateRef = useRef(state);
   stateRef.current = state;
 
   useEffect(() => {
-    if (typeof window === "undefined" || !("BroadcastChannel" in window)) return;
+    if (typeof window === "undefined") return;
 
-    const channel = new BroadcastChannel(CHANNEL_NAME);
-    channelRef.current = channel;
-
-    channel.onmessage = (event) => {
-      const msg = event.data as
-        | { type: "REQUEST_STATE" }
-        | { type: "STATE_SNAPSHOT"; payload: LiveState }
-        | { type: "ACTION"; action: LiveAction }
-        | undefined;
-      if (!msg) return;
-
+    function handleIncoming(msg: SyncMessage) {
       if (msg.type === "REQUEST_STATE") {
-        // Another tab just opened: hand it our current state.
-        channel.postMessage({ type: "STATE_SNAPSHOT", payload: stateRef.current });
+        // Another browser just joined: hand it our current state.
+        publishRef.current?.({ type: "STATE_SNAPSHOT", payload: stateRef.current });
       } else if (msg.type === "STATE_SNAPSHOT") {
         dispatch({ type: "REPLACE_STATE", payload: msg.payload });
       } else if (msg.type === "ACTION") {
         dispatch(msg.action);
       }
-    };
+    }
 
-    // Ask any already-open tab for the latest state so we don't start stale.
-    channel.postMessage({ type: "REQUEST_STATE" });
+    const sb = supabase;
+    if (sb) {
+      // Cross-device: relayed through Supabase Realtime over the internet.
+      const rt: RealtimeChannel = sb.channel(CHANNEL_NAME, {
+        config: { broadcast: { self: false } },
+      });
+      rt.on("broadcast", { event: "msg" }, ({ payload }) =>
+        handleIncoming(payload as SyncMessage)
+      );
+      rt.subscribe((status) => {
+        if (status === "SUBSCRIBED") {
+          publishRef.current = (msg) => rt.send({ type: "broadcast", event: "msg", payload: msg });
+          publishRef.current({ type: "REQUEST_STATE" });
+        }
+      });
+      return () => {
+        sb.removeChannel(rt);
+        publishRef.current = null;
+      };
+    }
 
-    return () => channel.close();
+    if ("BroadcastChannel" in window) {
+      // Same-device only fallback, e.g. local dev with no Supabase env vars.
+      const bc = new BroadcastChannel(CHANNEL_NAME);
+      bc.onmessage = (event) => handleIncoming(event.data as SyncMessage);
+      publishRef.current = (msg) => bc.postMessage(msg);
+      publishRef.current({ type: "REQUEST_STATE" });
+      return () => {
+        bc.close();
+        publishRef.current = null;
+      };
+    }
   }, []);
 
   function currentTime() {
@@ -223,7 +256,7 @@ export function LiveStoreProvider({ children }: { children: ReactNode }) {
       payload: { time: currentTime(), village },
     };
     dispatch(action);
-    channelRef.current?.postMessage({ type: "ACTION", action });
+    publishRef.current?.({ type: "ACTION", action });
   }
 
   function logActivity(activityType: ActivityType, village: string) {
@@ -232,7 +265,7 @@ export function LiveStoreProvider({ children }: { children: ReactNode }) {
       payload: { activityType, village, time: currentTime(), date: "12 Mar" },
     };
     dispatch(action);
-    channelRef.current?.postMessage({ type: "ACTION", action });
+    publishRef.current?.({ type: "ACTION", action });
   }
 
   return (
